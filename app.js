@@ -53,4 +53,4 @@ app.put('/assertion', async (req, res) => {
     }
 });
 
-app.listen(process.env.PORT || 3000, () => console.log('App launched.'));
+app.listen(process.env.PORT || 8080, () => console.log('App launched.'));
