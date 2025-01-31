@@ -27,30 +27,41 @@ app.get('/challenge', async (req, res) => {
     };
 });
 
-app.put('/credentials', async (req, res) => {
+app.post('/credentials', async (req, res) => {
     try {
         const credential = await fido.makeCredential(req.body);
+        const publicKeyJwkStr = JSON.stringify(credential.publicKeyJwk);
+        var publicKeyJwk1 = '';
+        var publicKeyJwk2 = '';
+
+        if (publicKeyJwkStr.length > 245 )
+        {
+            publicKeyJwk1 = publicKeyJwkStr.substr(0,245);
+            publicKeyJwk2 = publicKeyJwkStr.substr(245);
+        }
+        else
+        {
+            publicKeyJwk1 = publicKeyJwkStr;
+        }
+
         res.json({
-            result: credential
+            publicKeyJwk: publicKeyJwkStr,
+            publicKeyJwk1: publicKeyJwk1,
+            publicKeyJwk2: publicKeyJwk2
         });
     } catch (e) {
-        res.json({
-            error: e.message
-        });
+        res.status(409).json({ version: "1.0", status: 409, userMessage: 'ERROR: ' + e.message });
     }
 });
 
-app.put('/assertion', async (req, res) => {
+app.post('/assertion', async (req, res) => {
     try {
         const credential = await fido.verifyAssertion(req.body);
-        res.json({
-            result: credential
-        });
+        res.json(credential);
     } catch (e) {
-        res.json({
-            error: e.message
-        });
+
+        res.status(409).json({ version: "1.0", status: 409, userMessage: 'ERROR (assertion): ' + e.message });
     }
 });
 
-app.listen(process.env.PORT || 8080, () => console.log('App launched.'));
+app.listen(process.env.PORT || 3000, () => console.log('App launched.'));
